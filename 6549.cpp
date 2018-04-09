@@ -4,31 +4,53 @@
 
 using namespace std;
 
+#define MAX(x,y) ((x) > (y) ? (x) : (y))
 #define MIN(x,y) ((x) < (y) ? (x) : (y))
-#define LEFT(x) ((x) * 2)
-#define RIGHT(x) ((x) * 2 + 1)
 
-void init_tree(vector<int>& tree, vector<int>& h, int node, int n, int leaf_count) {
-  if (node >= leaf_count) {
-    if (node - leaf_count < n) tree[node] = h[node - leaf_count];
-    else tree[node] = INT_MAX;
+long long search(vector<int>& h, int start, int end) {
+  if (start == end - 1) {
+    return h[start];
   } else {
-    init_tree(tree, h, LEFT(node), n, leaf_count);
-    init_tree(tree, h, RIGHT(node), n, leaf_count);
-    tree[node] = MIN(tree[LEFT(node)], tree[RIGHT(node)]);
-  }
-}
+    long long lhs = search(h, start, (start + end) / 2);
+    long long rhs = search(h, (start + end) / 2, end);
 
-int search(vector<int>& tree, int node, int start, int end, int left, int right) {
-  if (left > end || right < start) {
-    return INT_MAX;
+    long long left = (start + end) / 2 - 1;
+    long long right = (start + end) / 2;
+    long long min_h = MIN(h[left], h[right]);
+    left--;
+    right++;
+    long long max_current = min_h * 2;
+    while (left >= start && right < end) {
+      if (h[left] < h[right]) {
+        min_h = MIN(min_h, h[right]);
+        if (min_h * (right - left) > max_current) {
+          max_current = min_h * (right - left);
+        }
+        right++;
+      } else {
+        min_h = MIN(min_h, h[left]);
+        if (min_h * (right - left) > max_current) {
+          max_current = min_h * (right - left);
+        }
+        left--;
+      }
+    }
+    while (left >= start) {
+      min_h = MIN(min_h, h[left]);
+      if (min_h * (right - left) > max_current) {
+        max_current = min_h * (right - left);
+      }
+      left--;
+    }
+    while (right < end) {
+      min_h = MIN(min_h, h[right]);
+      if (min_h * (right - left) > max_current) {
+        max_current = min_h * (right - left);
+      }
+      right++;
+    }
+    return MAX(MAX(lhs, rhs), max_current);
   }
-  if (left <= start && end <= right) {
-    return tree[node];
-  }
-  auto lhs = search(tree, LEFT(node), start, (start + end) / 2, left, right);
-  auto rhs = search(tree, RIGHT(node), (start + end) / 2 + 1, end, left, right);
-  return MIN(lhs, rhs);
 }
 
 int main(void) {
@@ -45,21 +67,7 @@ int main(void) {
       scanf("%d", &h_i);
       h.push_back(h_i);
     }
-
-    int leaf_count;
-    for (leaf_count = 1; leaf_count < n; leaf_count <<= 1);
-
-    min_tree.reserve(leaf_count << 1);
-    init_tree(min_tree, h, 1, n, leaf_count);
-
-    int result = 0;
-    for (int i = 0; i < n; i++) {
-      for (int j = i; j < n; j++) {
-        int area = (j - i + 1) * search(min_tree, 1, 1, n, i + 1, j + 1);
-        if (area > result) result = area;
-      }
-    }
-    printf("%d\n", result);
+    printf("%lld\n", search(h, 0, n));
   }
 
   return 0;
