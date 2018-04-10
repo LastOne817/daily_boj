@@ -7,7 +7,7 @@ int main(void) {
   for (int i = 1; i <= t; i++) {
     scanf("%d", &c);
     if (c == 1) {
-      scanf("%lld", &n);
+      scanf("%llu", &n);
       p = q = 1;
       for (base = 1; base <= n >> 2; base <<= 1);
       while (base > 0) {
@@ -18,9 +18,9 @@ int main(void) {
         }
         base >>= 1;
       }
-      printf("Case #%d: %lld %lld\n", i, p, q);
+      printf("Case #%d: %llu %llu\n", i, p, q);
     } else {
-      scanf("%lld %lld", &p, &q);
+      scanf("%llu %llu", &p, &q);
       n = 0;
       base = 1;
       while (p > 1 || q > 1) {
@@ -33,7 +33,7 @@ int main(void) {
         base <<= 1;
       }
       n += base;
-      printf("Case #%d: %lld\n", i, n);
+      printf("Case #%d: %llu\n", i, n);
     }
   }
   return 0;
